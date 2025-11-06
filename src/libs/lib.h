@@ -77,4 +77,25 @@ void printf_c_ms(const char *text, Color color, TextStyle *styles, int stylesTot
     printf("%s", text);
     printf("\x1b[0m");
 }
+
+
+/// @brief print a line with custom length
+/// @param length will print "-" n times
+void print_line(int length){
+    for (int i = 0; i<length;i++){
+        printf("-");
+    }
+}
+
+/// @brief print a line with custom length and symbol
+/// @param length will print symbol n times
+/// @param symbol symbol for line
+void print_line_s(int length, char symbol)
+{
+    for (int i = 0; i < length; i++)
+    {
+        printf("%c", symbol);
+    }
+}
+
 #endif

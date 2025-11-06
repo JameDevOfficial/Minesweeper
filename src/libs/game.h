@@ -1,8 +1,10 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "printf_c.h"
+#include "lib.h"
 #include "stdbool.h"
+
+#define LINE_LENGTH 66
 
 bool print_menu()
 {
@@ -16,6 +18,8 @@ bool print_menu()
               "////////////////////////////////////////////////////////////////// \n",
               (Color){255, 0, 0},
               BOLD);
+        print_line(LINE_LENGTH);
+
     return true;
 }
 

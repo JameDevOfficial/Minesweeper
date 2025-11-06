@@ -1,5 +1,5 @@
 #include "libs/game.h"
-#include "libs/printf_c.h"
+#include "libs/lib.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
