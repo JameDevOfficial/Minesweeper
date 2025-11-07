@@ -5,7 +5,8 @@
 #include <math.h>
 
 /// @brief Text Styles Ansii Values
-typedef enum {
+typedef enum
+{
     RESET = 0,
     BOLD = 1,
     FAINT = 2,
@@ -19,11 +20,22 @@ typedef enum {
 } TextStyle;
 
 /// @brief Color with red, green, blue
-typedef struct{
+typedef struct
+{
     unsigned char r;
     unsigned char g;
     unsigned char b;
 } Color;
+
+/// @brief Clear the console screen (platform independent)
+void cls()
+{
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
 
 /// @brief Color to Ansii index
 /// @param color The color to convert with r, g, b
@@ -41,7 +53,8 @@ int color_to_ansi256(Color color)
 /// @brief printf with color
 /// @param text the char[] (String) to print
 /// @param color the color in which to print
-void printf_c(const char *text, Color color){
+void printf_c(const char *text, Color color)
+{
     int index = color_to_ansi256(color);
     printf("\x1b[38;5;%dm", index);
     printf("%s", text);
@@ -78,11 +91,12 @@ void printf_c_ms(const char *text, Color color, TextStyle *styles, int stylesTot
     printf("\x1b[0m");
 }
 
-
 /// @brief print a line with custom length
 /// @param length will print "-" n times
-void print_line(int length){
-    for (int i = 0; i<length;i++){
+void print_line(int length)
+{
+    for (int i = 0; i < length; i++)
+    {
         printf("-");
     }
 }
