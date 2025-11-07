@@ -2,6 +2,7 @@
 #define PRINTF_C_H
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
 /// @brief Text Styles Ansii Values
