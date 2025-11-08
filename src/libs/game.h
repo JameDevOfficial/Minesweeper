@@ -276,6 +276,40 @@ void renderGrid(Grid *grid)
     printCache();
 }
 
+void revealZeroTiles(Grid grid, Pos pos)
+{
+    int y = pos.y;
+    int x = pos.x;
+    if (grid.tiles[y][x].isMine || grid.tiles[grid.current.y][grid.current.x].value != 0)
+        return;
+
+    for (int dy = -1; dy <= 1; dy++)
+    {
+        for (int dx = -1; dx <= 1; dx++)
+        {
+            if ((dy == -1 || dy == 1) && (dx == -1 || dx == 1))
+            {
+                continue;
+            }
+            if (dy == 0 && dx == 0)
+                continue;
+
+            int ny = (int)y + dy;
+            int nx = (int)x + dx;
+            if (ny >= 0 && ny < (int)grid.height && nx >= 0 && nx < (int)grid.width)
+            {
+                if ( !grid.tiles[ny][nx].uncovered)
+                {
+                    grid.tiles[ny][nx].uncovered = true;
+                    if (grid.tiles[ny][nx].value == 0)
+                        revealZeroTiles(grid, (Pos){ny, nx});
+                }
+            }
+        }
+    }
+    return;
+}
+
 int handleGame(int difficulty, Grid grid)
 {
     bool running = true;
@@ -311,11 +345,13 @@ int handleGame(int difficulty, Grid grid)
             break;
         case 13:
             grid.tiles[grid.current.y][grid.current.x].uncovered = true;
-            if (grid.minesPlaced == false) {
+            if (grid.minesPlaced == false)
+            {
                 spawnMines(grid);
                 grid.minesPlaced = true;
             }
-
+            if (grid.tiles[grid.current.y][grid.current.x].value == 0)
+                revealZeroTiles(grid, grid.current);
             if (grid.tiles[grid.current.y][grid.current.x].isMine == true)
             {
                 return -1;
