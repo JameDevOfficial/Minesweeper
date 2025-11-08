@@ -29,6 +29,7 @@ typedef struct
     uint32_t totalMines;
     Tile **tiles;
     Pos current;
+    bool minesPlaced;
 } Grid;
 
 #define LINE_LENGTH 66
@@ -103,6 +104,64 @@ int handleMenu()
     return currentOption;
 }
 
+int spawnMines(Grid grid)
+{
+    uint32_t totalPositions = grid.width * grid.height;
+    uint32_t totalMines = grid.totalMines;
+    uint32_t width = grid.width;
+    uint32_t height = grid.height;
+
+    uint32_t currentIndex = grid.current.y * width + grid.current.x;
+
+    uint32_t *positions = malloc(totalPositions * sizeof(uint32_t));
+    for (uint32_t i = 0; i < totalPositions; i++)
+    {
+        positions[i] = i;
+    }
+
+    // Fisher-Yates shuffle
+    for (uint32_t i = 0; i < totalMines; i++)
+    {
+        uint32_t j = i + rand() % (totalPositions - i);
+        uint32_t temp = positions[i];
+        positions[i] = positions[j];
+        positions[j] = temp;
+
+        if (positions[i] == currentIndex)
+        {
+            positions[i] = positions[totalMines];
+            positions[totalMines] = currentIndex;
+        }
+    }
+
+    // Set mines
+    for (uint32_t i = 0; i < totalMines; i++)
+    {
+        uint32_t x = positions[i] % width;
+        uint32_t y = positions[i] / width;
+        grid.tiles[y][x].isMine = true;
+
+        for (int dy = -1; dy <= 1; dy++)
+        {
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                if (dy == 0 && dx == 0)
+                    continue;
+
+                int ny = (int)y + dy;
+                int nx = (int)x + dx;
+                if (ny >= 0 && ny < (int)grid.height && nx >= 0 && nx < (int)grid.width)
+                {
+                    grid.tiles[ny][nx].value++;
+                }
+            }
+        }
+
+        printf("Set Tile X: %u, Y: %u to mine\n", x, y);
+    }
+    free(positions);
+}
+
 Grid generateGridRandom(int mode)
 {
     uint32_t width, height, totalMines;
@@ -131,8 +190,7 @@ Grid generateGridRandom(int mode)
     grid.height = height;
     grid.totalMines = totalMines;
     grid.current = (Pos){width / 2, height / 2};
-
-    uint32_t totalPositions = width * height;
+    grid.minesPlaced = false;
 
     grid.tiles = malloc(height * sizeof(Tile *));
     for (uint32_t y = 0; y < height; y++)
@@ -148,33 +206,9 @@ Grid generateGridRandom(int mode)
             grid.tiles[y][x].uncovered = false;
             grid.tiles[y][x].flagged = false;
             grid.tiles[y][x].isMine = false;
+            grid.tiles[y][x].value = 0;
         }
     }
-
-    uint32_t *positions = malloc(totalPositions * sizeof(uint32_t));
-    for (uint32_t i = 0; i < totalPositions; i++)
-    {
-        positions[i] = i;
-    }
-
-    // Fisher-Yates shuffle
-    for (uint32_t i = 0; i < totalMines; i++)
-    {
-        uint32_t j = i + rand() % (totalPositions - i);
-        uint32_t temp = positions[i];
-        positions[i] = positions[j];
-        positions[j] = temp;
-    }
-
-    // Set mines
-    for (uint32_t i = 0; i < totalMines; i++)
-    {
-        uint32_t x = positions[i] % width;
-        uint32_t y = positions[i] / width;
-        grid.tiles[y][x].isMine = true;
-        printf("Set Tile X: %u, Y: %u to mine\n", x, y);
-    }
-    free(positions);
 
     return grid;
 }
@@ -246,8 +280,8 @@ int handleGame(int difficulty, Grid grid)
 {
     bool running = true;
 
-
-    while (running == true) {
+    while (running == true)
+    {
         cls();
         renderGrid(&grid);
         char inp = getch();
@@ -255,7 +289,8 @@ int handleGame(int difficulty, Grid grid)
         {
         case 'W':
         case 'w': // Up
-            if (grid.current.y > 0) grid.current.y -= 1;
+            if (grid.current.y > 0)
+                grid.current.y -= 1;
             break;
         case 'S':
         case 's': // Down
@@ -265,8 +300,10 @@ int handleGame(int difficulty, Grid grid)
             break;
         case 'A':
         case 'a': // Left
-            if (grid.current.x > 0) grid.current.x -= 1;
+            if (grid.current.x > 0)
+                grid.current.x -= 1;
             break;
+        case 'D':
         case 'd': // Right
             grid.current.x += 1;
             if (grid.current.x > grid.width - 1)
@@ -274,13 +311,23 @@ int handleGame(int difficulty, Grid grid)
             break;
         case 13:
             grid.tiles[grid.current.y][grid.current.x].uncovered = true;
+            if (grid.minesPlaced == false) {
+                spawnMines(grid);
+                grid.minesPlaced = true;
+            }
 
             if (grid.tiles[grid.current.y][grid.current.x].isMine == true)
             {
                 return -1;
             }
+            break;
         case 8:
             grid.tiles[grid.current.y][grid.current.x].flagged = true;
+            break;
+        case 'q':
+        case 'Q':
+            running = false; // Exit game
+            break;
         default:
             break;
         }
