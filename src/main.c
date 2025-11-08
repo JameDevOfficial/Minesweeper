@@ -12,5 +12,6 @@ int main()
     Grid grid = generateGridRandom(mode);
     getch();
     int result = handleGame(mode, grid);
+    freeGrid(&grid);
+    return EXIT_SUCCESS;
 }
-
