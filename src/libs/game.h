@@ -342,7 +342,7 @@ void revealZeroTiles(Grid *grid, Pos pos)
     free(stack);
 }
 
-int handleGame(int difficulty, Grid grid)
+int handleGame(Grid grid)
 {
     bool running = true;
 
