@@ -12,7 +12,14 @@ int main()
     Grid grid = generateGridRandom(mode);
     getch();
     int result = handleGame(mode, grid);
+    if (result == 1){
+        printf("You won!");
+        getch();
+    }
+    else {
+        printf("Exited with code %d", result);
+    }
+    
     freeGrid(&grid); 
-    printf("Test");
     return EXIT_SUCCESS;
 } 

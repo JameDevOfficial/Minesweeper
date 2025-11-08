@@ -30,6 +30,7 @@ typedef struct
     Tile **tiles;
     Pos current;
     bool minesPlaced;
+    uint32_t coveredTilesLeft;
 } Grid;
 
 #define LINE_LENGTH 66
@@ -107,6 +108,7 @@ int handleMenu()
 void spawnMines(Grid *grid)
 {
     uint32_t totalPositions = grid->width * grid->height;
+    grid->coveredTilesLeft = totalPositions - grid->totalMines;
     uint32_t totalMines = grid->totalMines;
     uint32_t width = grid->width;
     uint32_t height = grid->height;
@@ -253,8 +255,10 @@ void renderGrid(Grid *grid)
             }
             else if (grid->tiles[y][x].uncovered == true)
             {
-                char buffer[10];
-                sprintf(buffer, "%d", grid->tiles[y][x].value);
+                char buffer[60];
+                int fg_index = color_to_ansi256((Color){255, 255, 255});
+                int bg_index = color_to_ansi256_bg((Color){0, 0, 0});
+                sprintf(buffer, "\x1b[38;5;%dm\x1b[48;5;%dm%d\x1b[0m", fg_index, bg_index, grid->tiles[y][x].value);
                 addTextToCache(buffer);
             }
             // else if (grid->tiles[y][x].isMine == true)
@@ -301,7 +305,10 @@ void revealZeroTiles(Grid *grid, Pos pos)
             continue;
 
         if (!tile->uncovered)
+        {
             tile->uncovered = true;
+            grid->coveredTilesLeft--;
+        }
 
         if (tile->value != 0)
             continue;
@@ -325,6 +332,7 @@ void revealZeroTiles(Grid *grid, Pos pos)
                     continue;
 
                 neighbor->uncovered = true;
+                grid->coveredTilesLeft--;
 
                 if (neighbor->value == 0 && top < max)
                     stack[top++] = (Pos){.x = (uint32_t)nx, .y = (uint32_t)ny};
@@ -369,11 +377,15 @@ int handleGame(int difficulty, Grid grid)
                 grid.current.x = grid.width - 1;
             break;
         case 13:
-            grid.tiles[grid.current.y][grid.current.x].uncovered = true;
             if (grid.minesPlaced == false)
             {
                 spawnMines(&grid);
                 grid.minesPlaced = true;
+            }
+            if (!grid.tiles[grid.current.y][grid.current.x].uncovered)
+            {
+                grid.tiles[grid.current.y][grid.current.x].uncovered = true;
+                grid.coveredTilesLeft--;
             }
             if (grid.tiles[grid.current.y][grid.current.x].value == 0)
                 revealZeroTiles(&grid, grid.current);
@@ -383,7 +395,7 @@ int handleGame(int difficulty, Grid grid)
             }
             break;
         case 8:
-            grid.tiles[grid.current.y][grid.current.x].flagged = true;
+            grid.tiles[grid.current.y][grid.current.x].flagged = !grid.tiles[grid.current.y][grid.current.x].flagged;
             break;
         case 'q':
         case 'Q':
@@ -391,6 +403,10 @@ int handleGame(int difficulty, Grid grid)
             break;
         default:
             break;
+        }
+        if (grid.coveredTilesLeft == 0)
+        {
+            running = false;
         }
     }
     return 1;
