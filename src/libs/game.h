@@ -7,18 +7,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-typedef struct
-{
+
+typedef struct {
     uint32_t x;
     uint32_t y;
-} Mine;
+} Pos;
+
+typedef struct 
+{
+    Pos pos;
+    bool uncovered;
+    bool flagged;
+    bool isMine;
+} Tile;
 
 typedef struct
 {
     uint32_t width;
     uint32_t height;
     uint32_t totalMines;
-    Mine mines[];
+    Tile *tiles;
+    Pos current;
 } Grid;
 
 #define LINE_LENGTH 66
@@ -116,14 +125,26 @@ Grid generateGridRandom(int mode)
         totalMines = 99;
     }
 
-    Grid *grid = malloc(sizeof(Grid) + totalMines * sizeof(Mine));
-    grid->width = width;
-    grid->height = height;
-    grid->totalMines = totalMines;
+    Grid grid;
+    grid.width = width;
+    grid.height = height;
+    grid.totalMines = totalMines;
+    grid.current = (Pos){width / 2, height / 2};
 
     uint32_t totalPositions = width * height;
-    uint32_t *positions = malloc(totalPositions * sizeof(uint32_t));
+    grid.tiles = malloc(totalPositions * sizeof(Tile));
 
+    // Initialize all tiles
+    for (uint32_t i = 0; i < totalPositions; i++)
+    {
+        grid.tiles[i].pos.x = i % width;
+        grid.tiles[i].pos.y = i / width;
+        grid.tiles[i].uncovered = false;
+        grid.tiles[i].flagged = false;
+        grid.tiles[i].isMine = false;
+    }
+
+    uint32_t *positions = malloc(totalPositions * sizeof(uint32_t));
     for (uint32_t i = 0; i < totalPositions; i++)
     {
         positions[i] = i;
@@ -138,21 +159,28 @@ Grid generateGridRandom(int mode)
         positions[j] = temp;
     }
 
+    // Set mines
     for (uint32_t i = 0; i < totalMines; i++)
     {
-        grid->mines[i].x = positions[i] % width;
-        grid->mines[i].y = positions[i] / width;
-        printf("%d: X: %d Y: %d\n", i, grid->mines[i].x, grid->mines[i].y);
+        grid.tiles[positions[i]].isMine = true;
+        //printf("Set Tile X: %d, Y: %d to mine\n", grid.tiles[positions[i]].pos.x, grid.tiles[positions[i]].pos.y);
     }
 
     free(positions);
 
-    return *grid;
+    return grid;
+}
+
+void renderGrid(Grid *grid){
+    for (int h = 0; h< grid->height; h++){
+        for (int w = 0; w< grid->width; w++){
+            ; 
+        }
+    }
 }
 
 int handleGame(int difficulty, Grid grid)
-{
-    cls();
+{    cls();
 
     return 1;
 }
