@@ -11,7 +11,7 @@ int main()
     int mode = handleMenu();
     Grid grid = generateGridRandom(mode);
     getch();
-    int result = handleGame(mode, grid);
+    int result = handleGame(grid);
     if (result == 1){
         printf("You won!");
         getch();

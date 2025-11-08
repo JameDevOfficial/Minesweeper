@@ -34,7 +34,7 @@ typedef struct
 } Grid;
 
 #define LINE_LENGTH 66
-int handleGame(int difficulty, Grid grid);
+int handleGame( Grid grid);
 
 int handleMenu()
 {
