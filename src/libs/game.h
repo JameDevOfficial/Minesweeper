@@ -111,7 +111,6 @@ void spawnMines(Grid *grid)
     grid->coveredTilesLeft = totalPositions - grid->totalMines;
     uint32_t totalMines = grid->totalMines;
     uint32_t width = grid->width;
-    uint32_t height = grid->height;
 
     uint32_t currentIndex = grid->current.y * width + grid->current.x;
 
