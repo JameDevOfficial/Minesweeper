@@ -104,14 +104,14 @@ int handleMenu()
     return currentOption;
 }
 
-int spawnMines(Grid grid)
+void spawnMines(Grid *grid)
 {
-    uint32_t totalPositions = grid.width * grid.height;
-    uint32_t totalMines = grid.totalMines;
-    uint32_t width = grid.width;
-    uint32_t height = grid.height;
+    uint32_t totalPositions = grid->width * grid->height;
+    uint32_t totalMines = grid->totalMines;
+    uint32_t width = grid->width;
+    uint32_t height = grid->height;
 
-    uint32_t currentIndex = grid.current.y * width + grid.current.x;
+    uint32_t currentIndex = grid->current.y * width + grid->current.x;
 
     uint32_t *positions = malloc(totalPositions * sizeof(uint32_t));
     for (uint32_t i = 0; i < totalPositions; i++)
@@ -139,7 +139,7 @@ int spawnMines(Grid grid)
     {
         uint32_t x = positions[i] % width;
         uint32_t y = positions[i] / width;
-        grid.tiles[y][x].isMine = true;
+        grid->tiles[y][x].isMine = true;
 
         for (int dy = -1; dy <= 1; dy++)
         {
@@ -150,9 +150,9 @@ int spawnMines(Grid grid)
 
                 int ny = (int)y + dy;
                 int nx = (int)x + dx;
-                if (ny >= 0 && ny < (int)grid.height && nx >= 0 && nx < (int)grid.width)
+                if (ny >= 0 && ny < (int)grid->height && nx >= 0 && nx < (int)grid->width)
                 {
-                    grid.tiles[ny][nx].value++;
+                    grid->tiles[ny][nx].value++;
                 }
             }
         }
@@ -257,10 +257,10 @@ void renderGrid(Grid *grid)
                 sprintf(buffer, "%d", grid->tiles[y][x].value);
                 addTextToCache(buffer);
             }
-            else if (grid->tiles[y][x].isMine == true)
-            {
-                addTextToCache("X");
-            }
+            // else if (grid->tiles[y][x].isMine == true)
+            // {
+            //     addTextToCache("X");
+            // }
             else
             {
                 char buffer[50];
@@ -276,38 +276,63 @@ void renderGrid(Grid *grid)
     printCache();
 }
 
-void revealZeroTiles(Grid grid, Pos pos)
+void revealZeroTiles(Grid *grid, Pos pos)
 {
-    int y = pos.y;
-    int x = pos.x;
-    if (grid.tiles[y][x].isMine || grid.tiles[grid.current.y][grid.current.x].value != 0)
+    if (!grid->tiles)
         return;
 
-    for (int dy = -1; dy <= 1; dy++)
-    {
-        for (int dx = -1; dx <= 1; dx++)
-        {
-            if ((dy == -1 || dy == 1) && (dx == -1 || dx == 1))
-            {
-                continue;
-            }
-            if (dy == 0 && dx == 0)
-                continue;
+    if (pos.y >= grid->height || pos.x >= grid->width)
+        return;
 
-            int ny = (int)y + dy;
-            int nx = (int)x + dx;
-            if (ny >= 0 && ny < (int)grid.height && nx >= 0 && nx < (int)grid.width)
+    uint32_t max = grid->width * grid->height;
+    Pos *stack = malloc(max * sizeof(Pos));
+    if (!stack)
+        return;
+
+    uint32_t top = 0;
+    stack[top++] = pos;
+
+    while (top > 0)
+    {
+        Pos current = stack[--top];
+        Tile *tile = &grid->tiles[current.y][current.x];
+
+        if (tile->isMine || tile->flagged)
+            continue;
+
+        if (!tile->uncovered)
+            tile->uncovered = true;
+
+        if (tile->value != 0)
+            continue;
+
+        for (int dy = -1; dy <= 1; dy++)
+        {
+            for (int dx = -1; dx <= 1; dx++)
             {
-                if ( !grid.tiles[ny][nx].uncovered)
-                {
-                    grid.tiles[ny][nx].uncovered = true;
-                    if (grid.tiles[ny][nx].value == 0)
-                        revealZeroTiles(grid, (Pos){ny, nx});
-                }
+                if (dx == 0 && dy == 0)
+                    continue;
+
+                int ny = (int)current.y + dy;
+                int nx = (int)current.x + dx;
+
+                if (ny < 0 || ny >= (int)grid->height || nx < 0 || nx >= (int)grid->width)
+                    continue;
+
+                Tile *neighbor = &grid->tiles[ny][nx];
+
+                if (neighbor->flagged || neighbor->uncovered)
+                    continue;
+
+                neighbor->uncovered = true;
+
+                if (neighbor->value == 0 && top < max)
+                    stack[top++] = (Pos){.x = (uint32_t)nx, .y = (uint32_t)ny};
             }
         }
     }
-    return;
+
+    free(stack);
 }
 
 int handleGame(int difficulty, Grid grid)
@@ -347,11 +372,11 @@ int handleGame(int difficulty, Grid grid)
             grid.tiles[grid.current.y][grid.current.x].uncovered = true;
             if (grid.minesPlaced == false)
             {
-                spawnMines(grid);
+                spawnMines(&grid);
                 grid.minesPlaced = true;
             }
             if (grid.tiles[grid.current.y][grid.current.x].value == 0)
-                revealZeroTiles(grid, grid.current);
+                revealZeroTiles(&grid, grid.current);
             if (grid.tiles[grid.current.y][grid.current.x].isMine == true)
             {
                 return -1;
