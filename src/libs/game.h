@@ -400,6 +400,7 @@ int handleGame(Grid grid)
             }
             break;
         case 8:
+        case 127:
             grid.tiles[grid.current.y][grid.current.x].flagged = !grid.tiles[grid.current.y][grid.current.x].flagged;
             break;
         case 'q':
