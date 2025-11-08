@@ -37,7 +37,7 @@ typedef struct
 } Grid;
 
 #define LINE_LENGTH 66
-int handleGame( Grid grid);
+int handleGame(Grid grid);
 
 int handleMenu()
 {
@@ -79,6 +79,7 @@ int handleMenu()
         case 'd': // Right
             break;
         case 13:
+        case 10:
             return currentOption;
         default:
             break;
@@ -379,6 +380,7 @@ int handleGame(Grid grid)
                 grid.current.x = grid.width - 1;
             break;
         case 13:
+        case 10:
             if (grid.minesPlaced == false)
             {
                 spawnMines(&grid);
