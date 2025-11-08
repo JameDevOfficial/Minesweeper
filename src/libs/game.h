@@ -3,9 +3,12 @@
 
 #include "lib.h"
 #include "stdbool.h"
-#include <conio.h>
 #include <stdint.h>
 #include <stdlib.h>
+
+#ifdef WIN32
+#include <conio.h>
+#endif
 
 typedef struct
 {
