@@ -196,6 +196,7 @@ Grid generateGridRandom(int mode)
     grid.totalMines = totalMines;
     grid.current = (Pos){width / 2, height / 2};
     grid.minesPlaced = false;
+    grid.coveredTilesLeft = width * height;
 
     grid.tiles = malloc(height * sizeof(Tile *));
     for (uint32_t y = 0; y < height; y++)
