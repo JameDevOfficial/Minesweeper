@@ -274,8 +274,12 @@ void renderGrid(Grid *grid)
             {
                 char buffer[50];
                 int fg_index = color_to_ansi256((Color){100, 255, 100});
+                int hl_index= color_to_ansi256((Color){0,0,0});
                 int bg_index = color_to_ansi256_bg((Color){100, 255, 100});
-                sprintf(buffer, "\x1b[38;5;%dm\x1b[48;5;%dm \x1b[0m", fg_index, bg_index);
+                if (grid->tiles[y][x].uncovered == true)
+                    sprintf(buffer, "\x1b[38;5;%dm\x1b[48;5;%dm%d\x1b[0m", hl_index, bg_index, grid->tiles[y][x].value);
+                else
+                    sprintf(buffer, "\x1b[38;5;%dm\x1b[48;5;%dm \x1b[0m", fg_index, bg_index);
                 addTextToCache(buffer);
             }
             else if (grid->tiles[y][x].uncovered == true)
