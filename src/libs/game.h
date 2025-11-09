@@ -456,6 +456,7 @@ int revealIfValueMatchesFlags(Grid *grid) // Changed to pointer
                     if (tile->isMine)
                     {
                         tile->uncovered = true;
+                        cls();
                         renderGrid(grid);
                         return -1;
                     }
