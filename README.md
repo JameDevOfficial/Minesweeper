@@ -15,7 +15,7 @@ Minesweeper is a CLI implementation of the classical Minesweeper game.
 - Choose between easy, medium and hard
 - Beat your personal highscores (they save in files!)
 - Auto reveal when clicking on a tile with enough flags set
-- Reveal 0 fields when clicking on them
+- Reveal connected 0 fields when clicking on one
 
 Entirely written in C with custom print library (for printing with colors and styles)
 
