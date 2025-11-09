@@ -40,7 +40,7 @@ typedef struct
 #define LINE_LENGTH 66
 int handleGame(Grid grid);
 
-int handleMenu()
+int handleMenu(char *highscore)
 {
     printf_c_s("////////////////////////////////////////////////////////////////// \n"
                "//  __  __ _                                                    // \n"
@@ -52,6 +52,8 @@ int handleMenu()
                "////////////////////////////////////////////////////////////////// \n",
                (Color){255, 0, 0},
                BOLD);
+    print_line(LINE_LENGTH);
+    printf("\nHigh Score: %s\n",highscore );
     print_line(LINE_LENGTH);
     printf("\nDifficulty:\n");
     printf("   1. Easy\n");
@@ -82,6 +84,9 @@ int handleMenu()
         case 13:
         case 10:
             return currentOption;
+        case 'q':
+        case 'Q':
+            return -2;
         default:
             break;
         }
