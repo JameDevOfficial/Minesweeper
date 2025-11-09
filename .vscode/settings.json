@@ -1,8 +1,0 @@
-{
-    "files.associations": {
-        "game.h": "c",
-        "stdbool.h": "c",
-        "lib.h": "c"
-    },
-    "C_Cpp.errorSquiggles": "disabled"
-}
