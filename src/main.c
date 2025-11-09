@@ -9,22 +9,25 @@
 
 int main()
 {
-    int highscore = 0;
-    char highscoreString[10];
+    int highscores[3] = {0};
+    char highscoreStrings[3][10];
     FILE *fp = fopen(HIGHSCORE_FILE, "rb"); 
     if (fp)
     {
-        fread(&highscore, sizeof(int), 1, fp);
+        fread(&highscores, sizeof(int), 3, fp);
         fclose(fp);
     }
-    secondsToHours(highscore, highscoreString);
+    secondsToHours(highscores[0], highscoreStrings[0]);
+    secondsToHours(highscores[1], highscoreStrings[1]);
+    secondsToHours(highscores[2], highscoreStrings[2]);
 
     srand(time(NULL));
     int time = 0; // positive = won and time; -1: lost; -2: quit
     while (time != -2)
     {
         cls();
-        int mode = handleMenu(highscoreString);
+        int mode = handleMenu((char(*)[10])highscoreStrings);
+
         if (mode == -2)
             return EXIT_SUCCESS;
         Grid grid = generateGridRandom(mode);
@@ -41,16 +44,18 @@ int main()
             char timeString[10];
             secondsToHours(time, timeString);
             printf("You won! \nTime: %s\n", timeString);
-            if (highscore == 0 || highscore > time)
+            int index = mode - 1;
+            if (index < 0) return EXIT_FAILURE;
+            if (highscores[index] == 0 || highscores[index] > time)
             {
-                highscore = time;
-                secondsToHours(highscore, highscoreString);
+                highscores[index] = time;
+                secondsToHours(highscores[index], highscoreStrings[index]);
                 printf("New highscore!\n");
 
                 FILE *fp = fopen(HIGHSCORE_FILE, "wb");
                 if (fp)
                 {
-                    fwrite(&highscore, sizeof(int), 1, fp);
+                    fwrite(&highscores, sizeof(int), 3, fp);
                     fclose(fp);
                 }
             }

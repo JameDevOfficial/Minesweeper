@@ -40,7 +40,7 @@ typedef struct
 #define LINE_LENGTH 66
 int handleGame(Grid grid);
 
-int handleMenu(char *highscore)
+int handleMenu(char highscores[3][10])
 {
     printf_c_s("////////////////////////////////////////////////////////////////// \n"
                "//  __  __ _                                                    // \n"
@@ -53,7 +53,7 @@ int handleMenu(char *highscore)
                (Color){255, 0, 0},
                BOLD);
     print_line(LINE_LENGTH);
-    printf("\nHigh Score: %s\n",highscore );
+    printf("\nHigh Scores:\n    Easy: %s\n    Medium: %s\n    Hard: %s\n", highscores[0], highscores[1], highscores[2]);
     print_line(LINE_LENGTH);
     printf("\nDifficulty:\n");
     printf("   1. Easy\n");
@@ -296,10 +296,10 @@ void renderGrid(Grid *grid)
                 sprintf(buffer, "\x1b[38;5;%dm\x1b[48;5;%dm%d\x1b[0m", fg_index, bg_index, grid->tiles[y][x].value);
                 addTextToCache(buffer);
             }
-            // else if (grid->tiles[y][x].isMine == true)
-            // {
-            //     addTextToCache("X");
-            // }
+            else if (grid->tiles[y][x].isMine == true)
+            {
+                addTextToCache("X");
+            }
             else
             {
                 char buffer[50];
