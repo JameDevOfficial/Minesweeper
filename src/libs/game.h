@@ -5,6 +5,7 @@
 #include "stdbool.h"
 #include <stdint.h>
 #include <stdlib.h>
+#include <time.h>
 
 #ifdef WIN32
 #include <conio.h>
@@ -298,7 +299,7 @@ void renderGrid(Grid *grid)
             {
                 char buffer[50];
                 int fg_index = color_to_ansi256((Color){100, 100, 100});
-                int bg_index = color_to_ansi256_bg((Color){100, 100, 100});
+                int bg_index = color_to_ansi256_bg((Color){30, 30, 30});
                 sprintf(buffer, "\x1b[38;5;%dm\x1b[48;5;%dm \x1b[0m", fg_index, bg_index);
                 addTextToCache(buffer);
             }
@@ -374,11 +375,20 @@ void revealZeroTiles(Grid *grid, Pos pos)
 
 int handleGame(Grid grid)
 {
+    time_t startTime = time(NULL);
+    int elapsedSeconds = 0;
     bool running = true;
 
     while (running == true)
     {
         cls();
+
+        time_t currentTime = time(NULL);
+        elapsedSeconds = (int)difftime(currentTime, startTime);
+        char timeString[9];
+        secondsToHours(elapsedSeconds, timeString);
+        printf("Time: %s\n", timeString);
+
         renderGrid(&grid);
         char inp = getch();
         switch (inp)
@@ -440,6 +450,6 @@ int handleGame(Grid grid)
             running = false;
         }
     }
-    return 1;
+    return elapsedSeconds;
 }
 #endif

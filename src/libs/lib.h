@@ -246,4 +246,11 @@ void clearCache()
     textCache[0] = '\0';
 }
 
+void secondsToHours(int seconds, char *string){
+    int hours = seconds / 3600;
+    int minutes = (seconds % 3600) / 60;
+    int sec = seconds % 60;
+    sprintf(string, "%02d:%02d:%02d", hours, minutes, sec);
+}
+
 #endif
