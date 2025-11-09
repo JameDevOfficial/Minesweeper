@@ -11,6 +11,8 @@
 #include <conio.h>
 #endif
 
+#define RENDER_MINES false
+
 typedef struct
 {
     uint32_t x;
@@ -328,7 +330,7 @@ void renderGrid(Grid *grid)
                 sprintf(buffer, "\x1b[38;5;%dm\x1b[48;5;%dm%d\x1b[0m", fg_index, bg_index, grid->tiles[y][x].value);
                 addTextToCache(buffer);
             }
-            else if (grid->tiles[y][x].isMine == true)
+            else if (grid->tiles[y][x].isMine == true && RENDER_MINES)
             {
                 addTextToCache("X");
             }
@@ -410,6 +412,67 @@ void revealZeroTiles(Grid *grid, Pos pos)
     free(stack);
 }
 
+int revealIfValueMatchesFlags(Grid *grid) // Changed to pointer
+{
+    int flagged = 0;
+    for (int y = -1; y <= 1; y++)
+    {
+        for (int x = -1; x <= 1; x++)
+        {
+            int ny = (int)grid->current.y + y;
+            int nx = (int)grid->current.x + x;
+
+            if (ny >= 0 && ny < (int)grid->height && nx >= 0 && nx < (int)grid->width)
+            {
+                if (grid->tiles[ny][nx].flagged == true)
+                {
+                    flagged++;
+                }
+            }
+        }
+    }
+
+    if (flagged == (int)grid->tiles[grid->current.y][grid->current.x].value)
+    {
+        for (int y = -1; y <= 1; y++)
+        {
+            for (int x = -1; x <= 1; x++)
+            {
+                if (x == 0 && y == 0)
+                    continue;
+
+                int ny = (int)grid->current.y + y;
+                int nx = (int)grid->current.x + x;
+
+                if (ny >= 0 && ny < (int)grid->height && nx >= 0 && nx < (int)grid->width)
+                {
+                    Tile *tile = &grid->tiles[ny][nx];
+
+                    if (tile->flagged)
+                        continue;
+
+                    if (tile->isMine)
+                    {
+                        tile->uncovered = true;
+                        renderGrid(grid);
+                        return -1;
+                    }
+
+                    if (!tile->uncovered)
+                    {
+                        tile->uncovered = true;
+                        grid->coveredTilesLeft--;
+
+                        if (tile->value == 0)
+                            revealZeroTiles(grid, (Pos){nx, ny});
+                    }
+                }
+            }
+        }
+    }
+    return 1;
+}
+
 int handleGame(Grid grid)
 {
     time_t startTime = time(NULL);
@@ -464,10 +527,19 @@ int handleGame(Grid grid)
                 grid.tiles[grid.current.y][grid.current.x].uncovered = true;
                 grid.coveredTilesLeft--;
             }
+            else
+            {
+                int result = revealIfValueMatchesFlags(&grid);
+                if (result == -1)
+                {
+                    return -1; // Game lost
+                }
+            }
             if (grid.tiles[grid.current.y][grid.current.x].value == 0)
                 revealZeroTiles(&grid, grid.current);
             if (grid.tiles[grid.current.y][grid.current.x].isMine == true)
             {
+                renderGrid(&grid);
                 return -1;
             }
             break;
