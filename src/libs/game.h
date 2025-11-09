@@ -115,28 +115,49 @@ void spawnMines(Grid *grid)
     grid->coveredTilesLeft = totalPositions - grid->totalMines;
     uint32_t totalMines = grid->totalMines;
     uint32_t width = grid->width;
+    uint32_t height = grid->height;
 
-    uint32_t currentIndex = grid->current.y * width + grid->current.x;
+    bool *excluded = calloc(totalPositions, sizeof(bool));
+    if (!excluded) return;
 
-    uint32_t *positions = malloc(totalPositions * sizeof(uint32_t));
-    for (uint32_t i = 0; i < totalPositions; i++)
+    for (int dy = -1; dy <= 1; dy++)
     {
-        positions[i] = i;
+        for (int dx = -1; dx <= 1; dx++)
+        {
+            int ny = (int)grid->current.y + dy;
+            int nx = (int)grid->current.x + dx;
+            if (ny >= 0 && ny < (int)height && nx >= 0 && nx < (int)width)
+            {
+                uint32_t index = ny * width + nx;
+                excluded[index] = true;
+            }
+        }
     }
 
-    // Fisher-Yates shuffle
-    for (uint32_t i = 0; i < totalMines; i++)
+    uint32_t *positions = malloc(totalPositions * sizeof(uint32_t));
+    if (!positions)
     {
-        uint32_t j = i + rand() % (totalPositions - i);
+        free(excluded);
+        return;
+    }
+
+    uint32_t validCount = 0;
+    for (uint32_t i = 0; i < totalPositions; i++)
+    {
+        if (!excluded[i])
+        {
+            positions[validCount++] = i;
+        }
+    }
+    free(excluded);
+
+    // Fisher-Yates shuffle
+    for (uint32_t i = 0; i < totalMines && i < validCount; i++)
+    {
+        uint32_t j = i + rand() % (validCount - i);
         uint32_t temp = positions[i];
         positions[i] = positions[j];
         positions[j] = temp;
-
-        if (positions[i] == currentIndex)
-        {
-            positions[i] = positions[totalMines];
-            positions[totalMines] = currentIndex;
-        }
     }
 
     // Set mines
@@ -406,7 +427,7 @@ int handleGame(Grid grid)
         case 'q':
         case 'Q':
             running = false; // Exit game
-            break;
+            return -2;
         default:
             break;
         }

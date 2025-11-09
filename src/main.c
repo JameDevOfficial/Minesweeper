@@ -1,7 +1,7 @@
 #include "libs/game.h"
 #include "libs/lib.h"
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h>q
 #include <stdint.h>
 #include <time.h>
 
