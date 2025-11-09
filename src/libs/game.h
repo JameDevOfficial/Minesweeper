@@ -33,6 +33,7 @@ typedef struct
     uint32_t width;
     uint32_t height;
     uint32_t totalMines;
+    uint32_t flagsPlaced;
     Tile **tiles;
     Pos current;
     bool minesPlaced;
@@ -255,6 +256,7 @@ Grid generateGridRandom(int mode)
     grid.width = width;
     grid.height = height;
     grid.totalMines = totalMines;
+    grid.flagsPlaced = 0;
     grid.current = (Pos){width / 2, height / 2};
     grid.minesPlaced = false;
     grid.coveredTilesLeft = width * height;
@@ -488,7 +490,7 @@ int handleGame(Grid grid)
         char timeString[9];
         secondsToHours(elapsedSeconds, timeString);
         printf("Time: %s\n", timeString);
-
+        printf("Flags: %d/%d\n", grid.flagsPlaced, grid.totalMines);
         renderGrid(&grid);
         char inp = getch();
         switch (inp)
@@ -546,7 +548,8 @@ int handleGame(Grid grid)
         case 8:
         case 127:
             grid.tiles[grid.current.y][grid.current.x].flagged = !grid.tiles[grid.current.y][grid.current.x].flagged;
-            break;
+            if (grid.tiles[grid.current.y][grid.current.x].flagged) grid.flagsPlaced++; else grid.flagsPlaced--;
+                break;
         case 'q':
         case 'Q':
             running = false; // Exit game
