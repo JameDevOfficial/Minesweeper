@@ -399,7 +399,7 @@ int handleGame(Grid grid)
                 return -1;
             }
             break;
-        case 8:
+        case 8: 
         case 127:
             grid.tiles[grid.current.y][grid.current.x].flagged = !grid.tiles[grid.current.y][grid.current.x].flagged;
             break;
