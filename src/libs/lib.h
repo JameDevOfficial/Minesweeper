@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <string.h>
 
 #ifdef _WIN32
@@ -33,8 +32,6 @@ int getch(void)
 #endif
 
 void clearCache();
-
-
 
 /// @brief Text Styles Ansii Values
 typedef enum
@@ -74,9 +71,9 @@ void cls()
 /// @return Ansii index of the color
 int color_to_ansi256(Color color)
 {
-    int r_level = (int)round(color.r / 255.0 * 5.0);
-    int g_level = (int)round(color.g / 255.0 * 5.0);
-    int b_level = (int)round(color.b / 255.0 * 5.0);
+    int r_level = (int) ((color.r / 255.0 * 5.0) + 0.5);
+    int g_level = (int) ((color.g / 255.0 * 5.0) + 0.5);
+    int b_level = (int) ((color.b / 255.0 * 5.0) + 0.5);
 
     int ansi_index = 16 + (r_level * 36) + (g_level * 6) + b_level;
     return ansi_index;
@@ -87,9 +84,9 @@ int color_to_ansi256(Color color)
 /// @return Ansii index of the color for background
 int color_to_ansi256_bg(Color color)
 {
-    int r_level = (int)round(color.r / 255.0 * 5.0);
-    int g_level = (int)round(color.g / 255.0 * 5.0);
-    int b_level = (int)round(color.b / 255.0 * 5.0);
+    int r_level = (int)((color.r / 255.0 * 5.0) + 0.5);
+    int g_level = (int)((color.g / 255.0 * 5.0) + 0.5);
+    int b_level = (int)((color.b / 255.0 * 5.0) + 0.5);
 
     int ansi_index = 16 + (r_level * 36) + (g_level * 6) + b_level;
     return ansi_index;
@@ -256,7 +253,8 @@ void clearCache()
     textCache[0] = '\0';
 }
 
-void secondsToHours(int seconds, char *string){
+void secondsToHours(int seconds, char *string)
+{
     int hours = seconds / 3600;
     int minutes = (seconds % 3600) / 60;
     int sec = seconds % 60;
