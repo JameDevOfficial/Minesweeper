@@ -541,6 +541,7 @@ int handleGame(Grid grid)
                 revealZeroTiles(&grid, grid.current);
             if (grid.tiles[grid.current.y][grid.current.x].isMine == true)
             {
+                cls();
                 renderGrid(&grid);
                 return -1;
             }
@@ -560,6 +561,8 @@ int handleGame(Grid grid)
         if (grid.coveredTilesLeft == 0)
         {
             running = false;
+            cls();
+            renderGrid(&grid);
         }
     }
     return elapsedSeconds;

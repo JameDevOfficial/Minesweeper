@@ -22,8 +22,8 @@ int main()
     secondsToHours(highscores[2], highscoreStrings[2]);
 
     srand(time(NULL));
-    int time = 0; // positive = won and time; -1: lost; -2: quit
-    while (time != -2)
+    int gameTime = 0; // positive: won and time; -1: lost; -2: quit
+    while (gameTime != -2)
     {
         cls();
         int mode = handleMenu((char(*)[10])highscoreStrings);
@@ -32,23 +32,25 @@ int main()
             return EXIT_SUCCESS;
         Grid grid = generateGridRandom(mode);
 
-        time = handleGame(grid);
-        switch (time)
+        gameTime = handleGame(grid);
+        switch (gameTime)
         {
         case -2:
             return EXIT_SUCCESS;
         case -1:
-            printf("You lost!");
+            print_c_s("You lost!\n", (Color){255, 50, 50}, BOLD);
+            getch();
             break;
         default:
             char timeString[10];
-            secondsToHours(time, timeString);
-            printf("You won! \nTime: %s\n", timeString);
+            secondsToHours(gameTime, timeString);
+            print_c_s("You won! ", (Color){50, 255, 50}, BOLD);
+            printf("\nTime: %s\n", timeString);
             int index = mode - 1;
             if (index < 0) return EXIT_FAILURE;
-            if (highscores[index] == 0 || highscores[index] > time)
+            if (highscores[index] == 0 || highscores[index] > gameTime)
             {
-                highscores[index] = time;
+                highscores[index] = gameTime;
                 secondsToHours(highscores[index], highscoreStrings[index]);
                 printf("New highscore!\n");
 
