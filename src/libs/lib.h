@@ -98,7 +98,7 @@ int color_to_ansi256_bg(Color color)
 /// @brief printf with color
 /// @param text the char[] (String) to print
 /// @param color the color in which to print
-void printf_c(const char *text, Color color)
+void print_c(const char *text, Color color)
 {
     int index = color_to_ansi256(color);
     printf("\x1b[38;5;%dm", index);
@@ -110,11 +110,21 @@ void printf_c(const char *text, Color color)
 /// @param text the char[] (String) to print
 /// @param color the color in which to print
 /// @param style the style in which to print from TextStyle
-void printf_c_s(const char *text, Color color, TextStyle style)
+void print_c_s(const char *text, Color color, TextStyle style)
 {
     int index = color_to_ansi256(color);
     printf("\x1b[%dm", style);
     printf("\x1b[38;5;%dm", index);
+    printf("%s", text);
+    printf("\x1b[0m");
+}
+
+/// @brief printf with style
+/// @param text the char[] (String) to print
+/// @param style the style in which to print from TextStyle
+void print_style(const char *text, TextStyle style)
+{
+    printf("\x1b[%dm", style);
     printf("%s", text);
     printf("\x1b[0m");
 }
@@ -124,7 +134,7 @@ void printf_c_s(const char *text, Color color, TextStyle style)
 /// @param color the color in which to print
 /// @param styles the styles in which to print from TextStyle[]
 /// @param stylesTotal the total amount of styles
-void printf_c_ms(const char *text, Color color, TextStyle *styles, int stylesTotal)
+void print_c_ms(const char *text, Color color, TextStyle *styles, int stylesTotal)
 {
     int index = color_to_ansi256(color);
     for (int i = 0; i < stylesTotal; i++)
@@ -140,7 +150,7 @@ void printf_c_ms(const char *text, Color color, TextStyle *styles, int stylesTot
 /// @param text the char[] (String) to print
 /// @param fg_color the foreground color
 /// @param bg_color the background color
-void printf_c_bg(const char *text, Color fg_color, Color bg_color)
+void print_c_bg(const char *text, Color fg_color, Color bg_color)
 {
     int fg_index = color_to_ansi256(fg_color);
     int bg_index = color_to_ansi256_bg(bg_color);
@@ -155,7 +165,7 @@ void printf_c_bg(const char *text, Color fg_color, Color bg_color)
 /// @param fg_color the foreground color
 /// @param bg_color the background color
 /// @param style the style in which to print from TextStyle
-void printf_c_bg_s(const char *text, Color fg_color, Color bg_color, TextStyle style)
+void print_c_bg_s(const char *text, Color fg_color, Color bg_color, TextStyle style)
 {
     int fg_index = color_to_ansi256(fg_color);
     int bg_index = color_to_ansi256_bg(bg_color);
@@ -172,7 +182,7 @@ void printf_c_bg_s(const char *text, Color fg_color, Color bg_color, TextStyle s
 /// @param bg_color the background color
 /// @param styles the styles in which to print from TextStyle[]
 /// @param stylesTotal the total amount of styles
-void printf_c_bg_ms(const char *text, Color fg_color, Color bg_color, TextStyle *styles, int stylesTotal)
+void print_c_bg_ms(const char *text, Color fg_color, Color bg_color, TextStyle *styles, int stylesTotal)
 {
     int fg_index = color_to_ansi256(fg_color);
     int bg_index = color_to_ansi256_bg(bg_color);

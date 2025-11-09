@@ -39,29 +39,72 @@ typedef struct
 
 #define LINE_LENGTH 66
 int handleGame(Grid grid);
+void printMenuHeader(char highscores[3][10]);
+
+void printOptions(int currentOption)
+{
+    print_style("Difficulty:\n", BOLD);
+    if (currentOption == 1)
+        print_c_ms("   1. Easy     \n", (Color){255, 255, 255}, (TextStyle[]){INVERTED}, 1);
+    else
+        printf("   1. Easy     \n");
+
+    if (currentOption == 2)
+        print_c_ms("   2. Medium   \n", (Color){255, 255, 255}, (TextStyle[]){INVERTED}, 1);
+    else
+        printf("   2. Medium   \n");
+
+    if (currentOption == 3)
+        print_c_ms("   3. Hard     \n", (Color){255, 255, 255}, (TextStyle[]){INVERTED}, 1);
+    else
+        printf("   3. Hard     \n");
+}
+
+void printHelp(char highscores[3][10], int currentOption)
+{
+    cls();
+    print_style("\nTips:\n", BOLD);
+    printf("   - Use WASD to move around (menu + game) and enter to select (menu)\n   - Press q to exit\n");
+    print_style("\nGame Controls:", BOLD);
+    printf("\n   - WASD: move around\n   - Enter: Reveal a tile\n   - Backspace: Mark/Unmark tile as flagged\n   The game ends as soon as all tiles that are NOT a mine are uncovered.\n");
+    print_line(LINE_LENGTH);
+
+    print_style("\nPress any key to return . . .", ITALIC);
+    getch();
+    cls();
+    printMenuHeader(highscores);
+    printOptions(currentOption);
+}
+
+void printMenuHeader(char highscores[3][10])
+{
+    print_c_s("////////////////////////////////////////////////////////////////// \n"
+              "//  __  __ _                                                    // \n"
+              "// |  \\/  (_)_ __   ___  _____      _____  ___ _ __   ___ _ __  // \n"
+              "// | |\\/| | | '_ \\ / _ \\/ __\\ \\ /\\ / / _ \\/ _ \\ '_ \\ / _ \\ '__| // \n"
+              "// | |  | | | | | |  __/\\__  \\ V  V /  __/  __/ |_) |  __/ |    // \n"
+              "// |_|  |_|_|_| |_|\\___||___/ \\_/\\_/ \\___|\\___| .__/ \\___|_|    // \n"
+              "//                                            |_|               // \n"
+              "////////////////////////////////////////////////////////////////// \n",
+              (Color){255, 0, 0},
+              BOLD);
+    print_line(LINE_LENGTH);
+    print_style("\nYour Highscores:\n", BOLD);
+    printf("    Easy: %s\n    Medium: %s\n    Hard: %s\n", highscores[0], highscores[1], highscores[2]);
+    print_style("\nPress h for help\n", ITALIC);
+    print_line(LINE_LENGTH);
+
+    printf("\n");
+}
 
 int handleMenu(char highscores[3][10])
 {
-    printf_c_s("////////////////////////////////////////////////////////////////// \n"
-               "//  __  __ _                                                    // \n"
-               "// |  \\/  (_)_ __   ___  _____      _____  ___ _ __   ___ _ __  // \n"
-               "// | |\\/| | | '_ \\ / _ \\/ __\\ \\ /\\ / / _ \\/ _ \\ '_ \\ / _ \\ '__| // \n"
-               "// | |  | | | | | |  __/\\__  \\ V  V /  __/  __/ |_) |  __/ |    // \n"
-               "// |_|  |_|_|_| |_|\\___||___/ \\_/\\_/ \\___|\\___| .__/ \\___|_|    // \n"
-               "//                                            |_|               // \n"
-               "////////////////////////////////////////////////////////////////// \n",
-               (Color){255, 0, 0},
-               BOLD);
-    print_line(LINE_LENGTH);
-    printf("\nHigh Scores:\n    Easy: %s\n    Medium: %s\n    Hard: %s\n", highscores[0], highscores[1], highscores[2]);
-    print_line(LINE_LENGTH);
-    printf("\nDifficulty:\n");
-    printf("   1. Easy\n");
-    printf("   2. Medium\n");
-    printf("   3. Hard\n");
+    printMenuHeader(highscores);
 
     int inp = 0;
     int currentOption = 1; // 1 - 3
+    printOptions(currentOption);
+
     while (!(inp == 13 || inp == 'q' || inp == 'Q'))
     {
         inp = getch();
@@ -84,9 +127,10 @@ int handleMenu(char highscores[3][10])
         case 13:
         case 10:
             return currentOption;
-        case 'q':
-        case 'Q':
-            return -2;
+        case 'h':
+        case 'H':
+            printHelp(highscores, currentOption);
+            break;
         default:
             break;
         }
@@ -95,22 +139,9 @@ int handleMenu(char highscores[3][10])
             currentOption = 1;
         else if (currentOption > 3)
             currentOption = 3;
-        printf("\x1b[3A");
+        printf("\x1b[4A");
 
-        if (currentOption == 1)
-            printf_c_ms("   1. Easy     \n", (Color){255, 255, 255}, (TextStyle[]){INVERTED}, 1);
-        else
-            printf("   1. Easy     \n");
-
-        if (currentOption == 2)
-            printf_c_ms("   2. Medium   \n", (Color){255, 255, 255}, (TextStyle[]){INVERTED}, 1);
-        else
-            printf("   2. Medium   \n");
-
-        if (currentOption == 3)
-            printf_c_ms("   3. Hard     \n", (Color){255, 255, 255}, (TextStyle[]){INVERTED}, 1);
-        else
-            printf("   3. Hard     \n");
+        printOptions(currentOption);
     }
     return currentOption;
 }
@@ -124,7 +155,8 @@ void spawnMines(Grid *grid)
     uint32_t height = grid->height;
 
     bool *excluded = calloc(totalPositions, sizeof(bool));
-    if (!excluded) return;
+    if (!excluded)
+        return;
 
     for (int dy = -1; dy <= 1; dy++)
     {
@@ -280,7 +312,7 @@ void renderGrid(Grid *grid)
             {
                 char buffer[50];
                 int fg_index = color_to_ansi256((Color){100, 255, 100});
-                int hl_index= color_to_ansi256((Color){0,0,0});
+                int hl_index = color_to_ansi256((Color){0, 0, 0});
                 int bg_index = color_to_ansi256_bg((Color){100, 255, 100});
                 if (grid->tiles[y][x].uncovered == true)
                     sprintf(buffer, "\x1b[38;5;%dm\x1b[48;5;%dm%d\x1b[0m", hl_index, bg_index, grid->tiles[y][x].value);
@@ -439,7 +471,7 @@ int handleGame(Grid grid)
                 return -1;
             }
             break;
-        case 8: 
+        case 8:
         case 127:
             grid.tiles[grid.current.y][grid.current.x].flagged = !grid.tiles[grid.current.y][grid.current.x].flagged;
             break;
